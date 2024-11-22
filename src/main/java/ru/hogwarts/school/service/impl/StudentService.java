@@ -1,0 +1,19 @@
+package ru.hogwarts.school.service.impl;
+
+import org.springframework.web.bind.annotation.RequestParam;
+import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
+
+import java.util.List;
+
+public interface StudentService {
+    Student addStudent(Student student);
+
+    Student removeStudent(long id);
+
+    Student findStudent(long id);
+
+    Student updateStudent(long id, Student studentForUpdate);
+
+    List<Student> findAllByAge( int age);
+}
