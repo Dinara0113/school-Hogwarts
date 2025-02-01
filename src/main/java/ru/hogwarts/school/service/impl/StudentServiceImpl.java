@@ -1,25 +1,24 @@
 package ru.hogwarts.school.service.impl;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
-import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.FacultyRepository;
 import ru.hogwarts.school.repository.StudentRepository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 @Service
 public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
 
-    public StudentServiceImpl(StudentRepository studentRepository) {
+    private final FacultyRepository facultyRepository;
+
+    public StudentServiceImpl(StudentRepository studentRepository, FacultyRepository facultyRepository) {
         this.studentRepository = studentRepository;
+        this.facultyRepository = facultyRepository;
     }
-
-
 
     @Override
     public Student addStudent(Student student) {
@@ -53,6 +52,21 @@ public class StudentServiceImpl implements StudentService {
         return studentRepository.findAll().stream()
                 .filter(student -> student.getAge() == age)
                 .toList();
+    }
+
+    @Override
+    public List<Student> findByAgeBetween(int ageMin, int ageMax){
+        return studentRepository.findByAgeBetween(ageMin, ageMax);
+    }
+
+    @Override
+    public Faculty findFacultyByStudentId(long id){
+        return facultyRepository.findByStudentId(id);
+    }
+
+    @Override
+    public List <Student> findByFacultyId(long id) {
+        return studentRepository.findByFacultyId(id);
     }
 
 }

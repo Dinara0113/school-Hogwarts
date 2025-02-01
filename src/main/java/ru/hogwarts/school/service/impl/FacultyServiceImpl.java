@@ -1,15 +1,11 @@
 package ru.hogwarts.school.service.impl;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
 import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.repository.FacultyRepository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class FacultyServiceImpl implements FacultyService {
@@ -52,5 +48,10 @@ public class FacultyServiceImpl implements FacultyService {
                 .stream()
                 .filter(faculty -> faculty.getColor().equals(color))
                 .toList();
+    }
+
+    @Override
+    public List<Faculty> getFacultyByColorOrName(String color, String name){
+        return facultyRepository.findByColorIgnoreCaseOrNameIgnoreCase(color, name);
     }
 }
