@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
+import ru.hogwarts.school.exception.AvatarNotFoundException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Student;
@@ -32,36 +33,55 @@ public class AvatarServiceImpl {
     }
 
     public void uploadImage(long studentId, MultipartFile multipartFile) throws IOException {
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new StudentNotFoundException(studentId));
+
 
         createDirectory();
 
         Path filePath = Path.of(pathDir, UUID.randomUUID() + "." + getExtension(multipartFile.getOriginalFilename()));
 
+        createAvatar(studentId, multipartFile, filePath.toString());
+
+        multipartFile.transferTo(filePath);
+
+    }
+
+    public Avatar getAvatarFromDB(long studentId) {
+        boolean studentExist = studentRepository.existsById(studentId);
+        if (!studentExist) {
+            throw new StudentNotFoundException(studentId);
+        }
+
+
+        return avatarRepository.getByStudentId(studentId)
+               .orElseThrow(AvatarNotFoundException::new);
+    }
+
+    public byte[] getAvatarFromLocal(long studentId) {
+        boolean studentExist = studentRepository.existsById(studentId);
+        if (!studentExist) {
+            throw new StudentNotFoundException(studentId);
+        }
+
+        Avatar avatar = avatarRepository.getByStudentId(studentId)
+                .orElseThrow(AvatarNotFoundException::new);
+        String filePath = avatar.getFilePath();
+        try (BufferedInputStream bufferedOutputStream = new BufferedInputStream(new FileInputStream(filePath))) {
+            return bufferedOutputStream.readAllBytes();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Чтение картинки не удалось: " + e.getMessage());
+        }
+    }
+
+    private void createAvatar(long studentId, MultipartFile multipartFile, String filePath) throws IOException{
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new StudentNotFoundException(studentId));
         avatarRepository.save(new Avatar(
-                filePath.toString(),
+                filePath,
                 multipartFile.getSize(),
                 multipartFile.getContentType(),
                 multipartFile.getBytes(),
                 student
         ));
-
-        multipartFile.transferTo(filePath);
-
-//        try(InputStream is = multipartFile.getInputStream();
-//            OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
-//            BufferedInputStream bis = new BufferedInputStream(is, 1024);
-//            BufferedOutputStream bos = new BufferedOutputStream(os, 1024)){
-//            bis.transferTo(bos);
-//        }
-//        try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(filePath))){
-//            bufferedOutputStream.write(multipartFile.getBytes(), 0, multipartFile.getBytes().length);
-//        }
-
-//        Files.copy(multipartFile.getInputStream(), filePath);
-//        multipartFile.transferTo(filePath);
-
     }
 
 
