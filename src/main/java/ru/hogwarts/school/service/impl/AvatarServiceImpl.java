@@ -2,7 +2,6 @@ package ru.hogwarts.school.service.impl;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.exception.AvatarNotFoundException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
@@ -16,24 +15,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
-
 @Service
-public class AvatarServiceImpl {
-    @Value("${path.dir}")
+public class AvatarServiceImpl implements AvatarService {
+
     private String pathDir;
 
     private final StudentRepository studentRepository;
 
     private final AvatarRepository avatarRepository;
 
-    public AvatarServiceImpl(StudentRepository studentRepository, AvatarRepository avatarRepository) {
+    public AvatarServiceImpl( @Value("${path.dir}") String pathDir, StudentRepository studentRepository, AvatarRepository avatarRepository) {
+        this.pathDir = pathDir;
         this.studentRepository = studentRepository;
         this.avatarRepository = avatarRepository;
     }
 
+    @Override
     public void uploadImage(long studentId, MultipartFile multipartFile) throws IOException {
-
+        System.out.println(pathDir);
 
         createDirectory();
 
@@ -45,6 +44,7 @@ public class AvatarServiceImpl {
 
     }
 
+    @Override
     public Avatar getAvatarFromDB(long studentId) {
         boolean studentExist = studentRepository.existsById(studentId);
         if (!studentExist) {
@@ -53,9 +53,10 @@ public class AvatarServiceImpl {
 
 
         return avatarRepository.getByStudentId(studentId)
-               .orElseThrow(AvatarNotFoundException::new);
+                .orElseThrow(AvatarNotFoundException::new);
     }
 
+    @Override
     public byte[] getAvatarFromLocal(long studentId) {
         boolean studentExist = studentRepository.existsById(studentId);
         if (!studentExist) {
@@ -72,7 +73,7 @@ public class AvatarServiceImpl {
         }
     }
 
-    private void createAvatar(long studentId, MultipartFile multipartFile, String filePath) throws IOException{
+    private void createAvatar(long studentId, MultipartFile multipartFile, String filePath) throws IOException {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new StudentNotFoundException(studentId));
         avatarRepository.save(new Avatar(
@@ -97,3 +98,4 @@ public class AvatarServiceImpl {
     }
 
 }
+
