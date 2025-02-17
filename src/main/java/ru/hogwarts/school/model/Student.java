@@ -53,6 +53,11 @@ public class Student {
     public void setAge(int age) {
         this.age = age;
     }
+
+    public void setFaculty(Faculty faculty) {
+        this.faculty = faculty;
+    }
+
     @Override
     public String toString() {
         return "Student{" +
