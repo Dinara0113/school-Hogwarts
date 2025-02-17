@@ -1,5 +1,6 @@
 package ru.hogwarts.school.service.impl;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -8,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Student;
@@ -25,10 +27,12 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@TestPropertySource(locations = "application.properties", properties = "path.dir=image")
+//@TestPropertySource(locations = "application.properties", properties = "path.dir=image")
+@TestPropertySource(properties = "path.dir=src/test/resources/image")
 class AvatarServiceImplTest {
+
     @InjectMocks
-    private AvatarServiceImpl avatarService;
+    private AvatarServiceImpl avatarServiceImpl;
 
     @Mock
     private  StudentRepository studentRepository;
@@ -37,24 +41,22 @@ class AvatarServiceImplTest {
     private  AvatarRepository avatarRepository;
 
 
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(avatarServiceImpl, "pathDir", "src/test/resources/image");
+    }
 
     @Test
     void uploadImage() throws IOException {
-        MultipartFile multipartFile = mock(MultipartFile.class);
-        when(multipartFile.getBytes()).thenReturn(new byte[1024]);
-        when(multipartFile.getContentType()).thenReturn(MediaType.IMAGE_JPEG_VALUE);
-        when(multipartFile.getOriginalFilename()).thenReturn("image.jpg");
-        when(multipartFile.getSize()).thenReturn(1024L);
 
-
-        Student student = new Student("Harry", 18);
+        Student student = new Student("oleg", 12);
         when(studentRepository.findById(anyLong())).thenReturn(Optional.of(student));
-        when(avatarRepository.save(any(Avatar.class))).thenReturn(null);
+        byte[] bytes = new byte[10];
+        MockMultipartFile multipartFile = new MockMultipartFile("file", bytes);
 
-        doNothing().when(multipartFile).transferTo(any(Path.class));
 
         //test
-        avatarService.uploadImage(nextLong(), multipartFile);
+        avatarServiceImpl.uploadImage(nextLong(), multipartFile);
     }
 
     @Test
@@ -79,3 +81,16 @@ class AvatarServiceImplTest {
 //    multipartFile.transferTo(filePath);
 //
 //}
+
+//        MultipartFile multipartFile = mock(MultipartFile.class);
+//        when(multipartFile.getBytes()).thenReturn(new byte[1024]);
+//        when(multipartFile.getContentType()).thenReturn(MediaType.IMAGE_JPEG_VALUE);
+//        when(multipartFile.getOriginalFilename()).thenReturn("image.jpg");
+//        when(multipartFile.getSize()).thenReturn(1024L);
+//
+//
+//        Student student = new Student("Harry", 18);
+//        when(studentRepository.findById(anyLong())).thenReturn(Optional.of(student));
+//        when(avatarRepository.save(any(Avatar.class))).thenReturn(null);
+//
+//        doNothing().when(multipartFile).transferTo(any(Path.class));

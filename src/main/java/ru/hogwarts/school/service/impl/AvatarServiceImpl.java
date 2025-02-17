@@ -13,10 +13,12 @@ import ru.hogwarts.school.repository.StudentRepository;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
 public class AvatarServiceImpl implements AvatarService {
+
 
     private String pathDir;
 
@@ -90,12 +92,23 @@ public class AvatarServiceImpl implements AvatarService {
         return originalPath.substring(originalPath.lastIndexOf(".") + 1);
     }
 
+//    private void createDirectory() throws IOException {
+//        Path path = Path.of(pathDir);
+//        if (Files.notExists(path)) {
+//            Files.createDirectory(path);
+//        }
+//    }
+
     private void createDirectory() throws IOException {
+        System.out.println("pathDir = " + pathDir); // Для отладки
+        Objects.requireNonNull(pathDir, "pathDir не должен быть null!");
+
         Path path = Path.of(pathDir);
         if (Files.notExists(path)) {
             Files.createDirectory(path);
         }
     }
+
 
 }
 
