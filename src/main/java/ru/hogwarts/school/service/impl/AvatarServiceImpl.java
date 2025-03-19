@@ -51,7 +51,6 @@ public class AvatarServiceImpl implements AvatarService {
             throw new StudentNotFoundException(studentId);
         }
 
-
         return avatarRepository.getByStudentId(studentId)
                 .orElseThrow(AvatarNotFoundException::new);
     }
