@@ -24,7 +24,9 @@ public interface StudentService {
 
     List <Student>  findByFacultyId(long id);
 
+
     long getStudentCount();
     double getAverageStudentAge();
     List<Student> getLastFiveStudents();
+
 }

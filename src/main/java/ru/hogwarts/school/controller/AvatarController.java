@@ -1,5 +1,7 @@
 package ru.hogwarts.school.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,4 +41,10 @@ public class AvatarController {
     public byte[] getAvatarFromLocal(@RequestParam("studentId") long studentId){
         return avatarService.getAvatarFromLocal(studentId);
     }
+
+    @GetMapping
+    public ResponseEntity<Page<Avatar>> getAvatars(Pageable pageable) {
+        return ResponseEntity.ok(avatarService.getAvatars(pageable));
+    }
+
 }
