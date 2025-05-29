@@ -1,5 +1,7 @@
 package ru.hogwarts.school.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Faculty;
@@ -11,6 +13,10 @@ import java.util.List;
 
 @Service
 public class StudentServiceImpl implements StudentService {
+
+    private static final Logger logger = LoggerFactory.getLogger(StudentServiceImpl.class);
+
+
     private final StudentRepository studentRepository;
 
     private final FacultyRepository facultyRepository;
@@ -22,12 +28,15 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student addStudent(Student student) {
+        logger.info("Was invoked method to add student: {}", student);
         return studentRepository.save(student);
 
     }
 
     @Override
     public Student removeStudent(long id) {
+        logger.warn("Attempt to remove student with id: {}", id);
+
         Student student = studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
         studentRepository.delete(student);
         return student;
@@ -56,6 +65,8 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<Student> findByAgeBetween(int ageMin, int ageMax){
+        logger.debug("Finding students between ages {} and {}", ageMin, ageMax);
+
         return studentRepository.findByAgeBetween(ageMin, ageMax);
     }
 
@@ -82,6 +93,25 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> getLastFiveStudents() {
         return studentRepository.findLastFiveStudents();
+    }
+
+
+    @Override
+    public List<String> getStudentNamesStartingWithA() {
+        return studentRepository.findAll().stream()
+                .map(Student::getName)
+                .filter(name -> name != null && name.toUpperCase().startsWith("А"))
+                .map(String::toUpperCase)
+                .sorted()
+                .toList();
+    }
+
+    @Override
+    public double getAverageAgeByStream() {
+        return studentRepository.findAll().stream()
+                .mapToInt(Student::getAge)
+                .average()
+                .orElse(0);
     }
 
 
