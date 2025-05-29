@@ -114,5 +114,69 @@ public class StudentServiceImpl implements StudentService {
                 .orElse(0);
     }
 
+    @Override
+    public void printStudentNamesInParallel() {
+        List<Student> students = studentRepository.findAll();
+
+        if (students.size() < 6) {
+            System.out.println("Недостаточно студентов для демонстрации (нужно минимум 6)");
+            return;
+        }
+
+        System.out.println("Main thread - " + Thread.currentThread().getName());
+        System.out.println(students.get(0).getName());
+        System.out.println(students.get(1).getName());
+
+        Thread thread1 = new Thread(() -> {
+            System.out.println("Thread-1 - " + Thread.currentThread().getName());
+            System.out.println(students.get(2).getName());
+            System.out.println(students.get(3).getName());
+        });
+
+        Thread thread2 = new Thread(() -> {
+            System.out.println("Thread-2 - " + Thread.currentThread().getName());
+            System.out.println(students.get(4).getName());
+            System.out.println(students.get(5).getName());
+        });
+
+        thread1.start();
+        thread2.start();
+    }
+
+
+    private final Object lock = new Object();
+
+    private void printNameSync(String name) {
+        synchronized (lock) {
+            System.out.println("Thread [" + Thread.currentThread().getName() + "] — " + name);
+        }
+    }
+
+    @Override
+    public void printStudentNamesSynchronized() {
+        List<Student> students = studentRepository.findAll();
+
+        if (students.size() < 6) {
+            System.out.println("Недостаточно студентов для демонстрации (нужно минимум 6)");
+            return;
+        }
+
+        printNameSync(students.get(0).getName());
+        printNameSync(students.get(1).getName());
+
+        Thread thread1 = new Thread(() -> {
+            printNameSync(students.get(2).getName());
+            printNameSync(students.get(3).getName());
+        });
+
+        Thread thread2 = new Thread(() -> {
+            printNameSync(students.get(4).getName());
+            printNameSync(students.get(5).getName());
+        });
+
+        thread1.start();
+        thread2.start();
+    }
+
 
 }

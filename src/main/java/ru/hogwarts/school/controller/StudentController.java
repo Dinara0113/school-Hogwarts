@@ -82,4 +82,15 @@ public class StudentController {
     }
 
 
+    @GetMapping("/print-parallel")
+    public void printStudentsInParallel() {
+        studentService.printStudentNamesInParallel();
+    }
+
+    @GetMapping("/print-synchronized")
+    public void printStudentsSynchronized() {
+        studentService.printStudentNamesSynchronized();
+    }
+
+
 }
